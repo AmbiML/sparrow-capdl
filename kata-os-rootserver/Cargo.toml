@@ -2,22 +2,6 @@
 name = "kata-os-rootserver"
 version = "0.1.0"
 edition = "2018"
-build = "build.rs"
-resolver = "2"
-
-[build-dependencies]
-sel4-config = { path = "../../processmanager/apps/system/components/kata-os-common/src/sel4-config" }
-
-[build-env]
-SEL4_OUT_DIR = "${ROOTDIR}/out/kata/kernel"
-
-[features]
-default = []
-
-[lib]
-name = "kata_os_rootserver"
-path = "src/main.rs"
-crate-type = ["staticlib"]
 
 [dependencies]
 cstr_core = { version = "0.2.3", default-features = false }
@@ -26,3 +10,8 @@ kata-logger = { path = "../../processmanager/apps/system/components//DebugConsol
 kata-panic = { path = "../../processmanager/apps/system/components//DebugConsole/kata-panic" }
 kata-os-common = { path = "../../processmanager/apps/system/components//kata-os-common" }
 log = "0.4"
+
+[lib]
+name = "kata_os_rootserver"
+path = "src/main.rs"
+crate-type = ["staticlib"]
