@@ -26,6 +26,10 @@ use kata_os_common::sel4_sys::seL4_GetIPCBuffer;
 use kata_os_common::sel4_sys::seL4_TCB_Suspend;
 extern crate kata_panic;
 use log::{info, trace};
+use static_assertions::*;
+
+assert_cfg!(feature = "CONFIG_PRINTING",
+            "seL4 console output support is required");
 
 // Linkage to pre-calculated data used to initialize the system.
 extern "C" {

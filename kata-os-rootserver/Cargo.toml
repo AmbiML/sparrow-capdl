@@ -13,6 +13,7 @@ SEL4_OUT_DIR = "${ROOTDIR}/out/kata/kernel"
 
 [features]
 default = []
+CONFIG_PRINTING = []
 
 [lib]
 name = "kata_os_rootserver"
@@ -26,3 +27,4 @@ kata-logger = { path = "../../processmanager/apps/system/components//DebugConsol
 kata-panic = { path = "../../processmanager/apps/system/components//DebugConsole/kata-panic" }
 kata-os-common = { path = "../../processmanager/apps/system/components//kata-os-common" }
 log = "0.4"
+static_assertions = "1.1"
