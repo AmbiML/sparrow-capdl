@@ -315,7 +315,8 @@ typedef enum {
     CDL_FrameFill_BootInfo_X86_ACPI_RSDP = SEL4_BOOTINFO_HEADER_X86_ACPI_RSDP,
     CDL_FrameFill_BootInfo_X86_Framebuffer = SEL4_BOOTINFO_HEADER_X86_FRAMEBUFFER,
     CDL_FrameFill_BootInfo_X86_TSC_Freq = SEL4_BOOTINFO_HEADER_X86_TSC_FREQ,
-    CDL_FrameFill_BootInfo_FDT = SEL4_BOOTINFO_HEADER_FDT
+    CDL_FrameFill_BootInfo_FDT = SEL4_BOOTINFO_HEADER_FDT,
+    CDL_FrameFill_BootInfo_BootInfo = SEL4_BOOTINFO_HEADER_BOOTINFO
 } CDL_FrameFill_BootInfoEnum_t;
 
 typedef struct {

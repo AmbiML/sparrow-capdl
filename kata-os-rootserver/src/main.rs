@@ -248,5 +248,7 @@ pub fn main() {
     model.init_system().expect("init_system");
     model.start_threads().expect("start_threads");
 
+    // TODO(sleffler): reclaim rootserver resources
+
     let _ = unsafe { seL4_TCB_Suspend(seL4_CapInitThreadTCB) };
 }
