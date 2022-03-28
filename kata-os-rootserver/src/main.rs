@@ -246,6 +246,7 @@ pub fn main() {
         executable_ref,
     );
     model.init_system().expect("init_system");
+    model.handoff_capabilities().expect("handoff_capabilities");
     model.start_threads().expect("start_threads");
 
     // TODO(sleffler): reclaim rootserver resources
