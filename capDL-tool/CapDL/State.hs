@@ -62,7 +62,7 @@ type SlotsLookup = ObjID -> Model Word -> CapMap Word
 
 cNodeSlots :: SlotsLookup
 cNodeSlots ref m = case maybeObject ref m of
-    Just (CNode slots _) -> slots
+    Just (CNode slots _ _) -> slots
     _ -> Map.empty
 
 pdSlots :: SlotsLookup
@@ -499,7 +499,7 @@ validTCBSlotCap arch slot cap
 
 validObjCap :: Arch -> KernelObject Word -> Word -> Cap -> Bool
 validObjCap arch (TCB {}) slot cap = validTCBSlotCap arch slot cap
-validObjCap _ (CNode _ 0) slot cap = slot == 0 && is _NotificationCap cap -- FIXME: we should add a separate IRQObject
+validObjCap _ (CNode _ 0 _) slot cap = slot == 0 && is _NotificationCap cap -- FIXME: we should add a separate IRQObject
 validObjCap _ (CNode {}) _ _ = True
 validObjCap _ (ASIDPool {}) _ cap = is _PDCap cap
 validObjCap RISCV (PT {}) _ cap = is _FrameCap cap || is _PTCap cap
@@ -588,7 +588,7 @@ checkCovers m = do
     return $ valid && covers && untypeds
 
 isIRQ :: KernelObject Word -> Bool
-isIRQ (CNode _ 0) = True --check irqNode
+isIRQ (CNode _ 0 _) = True --check irqNode
 isIRQ IOAPICIrq{} = True
 isIRQ MSIIrq{} = True
 isIRQ ARMIrq{} = True
@@ -609,7 +609,7 @@ checkIRQNode m = allM (checkIRQ m) (Map.toList $ irqNode m)
 
 flattenCNodeSlots :: [(ObjID, KernelObject Word)] -> [Cap]
 flattenCNodeSlots [] = []
-flattenCNodeSlots ((_, CNode slots _) : xs) = map snd (Map.toList slots) ++ flattenCNodeSlots xs
+flattenCNodeSlots ((_, CNode slots _ _) : xs) = map snd (Map.toList slots) ++ flattenCNodeSlots xs
 flattenCNodeSlots (_ : xs) = flattenCNodeSlots xs
 
 isMappedFrameCap :: Cap -> Bool
@@ -659,12 +659,12 @@ checkMappedFrameCapsSanity m mappings = do
     allM checkMappingSanity object_mappings
 
 isCNode :: KernelObject Word -> Bool
-isCNode (CNode _ _) = True
+isCNode (CNode _ _ _) = True
 isCNode _ = False
 
 getSlotsFromKernelObject :: KernelObject Word -> Maybe (CapMap Word)
 getSlotsFromKernelObject (TCB slots _ _ _ _) = Just slots
-getSlotsFromKernelObject (CNode slots _) = Just slots
+getSlotsFromKernelObject (CNode slots _ _) = Just slots
 getSlotsFromKernelObject (ASIDPool slots _) = Just slots
 getSlotsFromKernelObject (PT slots) = Just slots
 getSlotsFromKernelObject (PD slots) = Just slots

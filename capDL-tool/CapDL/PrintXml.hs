@@ -81,7 +81,7 @@ showRights rights = readRight ++ writeRight ++ grantRight ++ grantReplyRight
 --
 showObjectAttrs :: KernelObject a -> [(String, String)]
 showObjectAttrs (TCB _ _ _ domain _) = [("domain", show domain)]
-showObjectAttrs (CNode _ sz) = [("size", show sz)]
+showObjectAttrs (CNode _ sz _) = [("size", show sz)]
 showObjectAttrs (Untyped (Just sz) paddr) = [("size", show sz), ("paddr", show $ fromMaybe 0 paddr)]
 showObjectAttrs (Frame sz paddr _) = [("size", show sz), ("paddr", show $ fromMaybe 0 paddr)]
 showObjectAttrs (IOPorts sz) = [("size", show sz)]

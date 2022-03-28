@@ -28,6 +28,11 @@ data Range = Only Word
 
 type NameRef = (Name, [Range])
 
+data CNodeExtraParam =
+    HasUntyped {
+      has_untyped :: Bool }
+   deriving (Show, Eq, Ord, Typeable, Data)
+
 data TCBExtraParam =
     Addr {
       addr :: Word }
@@ -101,6 +106,8 @@ data ObjParam =
       level :: Word }
   | Paddr {
       paddr :: Word }
+  | CNodeExtraParam {
+      cnode_extraParam :: CNodeExtraParam }
   | TCBExtraParam {
       extraParam :: TCBExtraParam }
   | FrameExtraParam {

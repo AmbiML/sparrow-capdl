@@ -101,11 +101,11 @@ updateModel (Model arch objects irqNode cdt untypedCovers) tcbs =
     f (tcb, cspace) objects =
       let rootCNodeID = rootCNodeOf objects tcb
           e = error "cannot find root CNode in updateModel"
-          (CNode slots x) = Map.findWithDefault e rootCNodeID objects
+          (CNode slots x extraInfo) = Map.findWithDefault e rootCNodeID objects
           maxKey = maximum $ Map.keys $ slots
           newKeys = map (maxKey +) [1..]
           newSlots = foldr (\(k,a) -> Map.insert k a) slots (zip newKeys $ Set.toList cspace)
-      in Map.insert rootCNodeID (CNode newSlots x) objects
+      in Map.insert rootCNodeID (CNode newSlots x extraInfo) objects
     rootCNodeOf objects tcb =
       let e = error "cannot find tcbID in updateModel" in
       case (Map.findWithDefault e tcb objects) of
@@ -273,7 +273,7 @@ getCaps'' objects visited cnodeID
   | cnodeID `Set.member` visited = []
   | otherwise =
          case Map.findWithDefault e cnodeID objects of
-           CNode slots _ ->
+           CNode slots _ _ ->
              let caps = map snd $ Map.toList slots
                  newVisited = cnodeID `Set.insert` visited
              in concat $ map (getCaps' objects newVisited) caps

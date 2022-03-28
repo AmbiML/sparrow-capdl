@@ -259,6 +259,10 @@ typedef enum {
 #endif
 
 typedef struct {
+    bool has_untyped_memory;
+} CDL_CNodeExtraInfo;
+
+typedef struct {
     uint8_t priority;
     uint8_t max_priority;
     uint8_t affinity;
@@ -351,6 +355,7 @@ typedef struct {
 
     CDL_CapMap slots;
     union {
+        CDL_CNodeExtraInfo cnode_extra;
         CDL_TCBExtraInfo tcb_extra;
         CDL_SCExtraInfo sc_extra;
         CDL_CBExtraInfo cb_extra;

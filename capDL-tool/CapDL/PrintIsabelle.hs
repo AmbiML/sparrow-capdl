@@ -221,7 +221,7 @@ printReal False = text "Fake"
 
 printCNodeSize :: ObjMap Word -> ObjID -> Doc
 printCNodeSize ms id =
-    let (CNode _ sz) = fromJust $ Map.lookup id ms
+    let (CNode _ sz _) = fromJust $ Map.lookup id ms
     in num sz
 
 -- FIXME: missing capDL attribute
@@ -312,7 +312,7 @@ getAddress :: ObjMap Word -> [Cap] -> Word -> Cap -> Cap -> Maybe Word
 getAddress ms seen current_word goal_cap cap@(CNodeCap objID guard gsz)
     | cap `elem` seen = Nothing
     | otherwise =
-        let (CNode slots sz) = fromJust $ Map.lookup objID ms
+        let (CNode slots sz _) = fromJust $ Map.lookup objID ms
             radix_sz = fromIntegral sz
             level_sz = fromIntegral $ gsz + sz
             new_word = shift current_word level_sz + shift guard radix_sz
@@ -352,7 +352,7 @@ printObj' _ id (TCB _ fault _ dom _) = text "Tcb" <+>
     "cdl_tcb_intent = undefined",
     "cdl_tcb_has_fault = " ++ hasFaultEndpoint fault,
     "cdl_tcb_domain = " ++ show dom])
-printObj' _ id (CNode _ bits) = text "CNode" <+>
+printObj' _ id (CNode _ bits _) = text "CNode" <+>
     record (fsep $ punctuate comma $ map text
     ["cdl_cnode_caps = " ++ capsName id,
     "cdl_cnode_size_bits = " ++ show bits])

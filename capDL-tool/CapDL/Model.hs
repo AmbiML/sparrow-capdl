@@ -137,6 +137,10 @@ makePrisms ''Cap
 
 type CapMap a = Map a Cap
 
+data CNodeExtraInfo = CNodeExtraInfo {
+    hasUntyped :: Maybe Bool }
+    deriving (Eq, Show)
+
 data TCBExtraInfo = TCBExtraInfo {
     ipcBufferAddr :: Word,
     ip :: Maybe Word,
@@ -172,7 +176,8 @@ data KernelObject a
         initArguments :: [Word] }
     | CNode {
         slots :: CapMap a,
-        sizeBits :: Word }
+        sizeBits :: Word,
+        cnode_extraInfo :: CNodeExtraInfo }
     | Untyped {
         maybeSizeBits :: Maybe Word,
         maybePaddr :: Maybe Word }

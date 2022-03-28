@@ -286,14 +286,16 @@ def calculate_size(cnode):
         max_slot = max(cnode.slots.keys())
     except ValueError as e:
         max_slot = 0
-    return calculate_cnode_size(max_slot)
+    return calculate_cnode_size(max_slot + cnode.headroom)
 
 
 class CNode(ContainerObject):
-    def __init__(self, name, size_bits='auto'):
+    def __init__(self, name, size_bits='auto', headroom=0):
         super(CNode, self).__init__(name)
         self.size_bits = size_bits
+        self.headroom = headroom
         self.update_guard_size_caps = []
+        self.has_untyped_memory = False
 
     def finalise_size(self, arch=None):
         if self.size_bits == 'auto':
@@ -312,7 +314,8 @@ class CNode(ContainerObject):
         return size_bits
 
     def __repr__(self):
-        return '%s = cnode (%s bits)' % (self.name, self.get_slot_bits())
+        return '%s = cnode (%s bits, untyped: %s)' % (
+            self.name, self.get_slot_bits(), self.has_untyped_memory)
 
     def get_size_bits(self):
         return self.get_slot_bits() + get_object_size_bits(ObjectType.seL4_Slot)

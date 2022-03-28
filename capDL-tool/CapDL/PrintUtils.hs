@@ -189,8 +189,8 @@ prettyObjParams obj = case obj of
     Notification -> text "notification"
     TCB _ fault_ep extra dom init ->
         text "tcb" <+> maybeParensList [prettyExtraInfo extra, prettyFaultEP fault_ep, prettyDom dom, prettyInitArguments init]
-    CNode _ 0 -> text "irq" --FIXME: This should check if the obj is in the irqNode
-    CNode _ bits -> text "cnode" <+> maybeParensList [prettyBits bits]
+    CNode _ 0 _ -> text "irq" --FIXME: This should check if the obj is in the irqNode
+    CNode _ bits _ -> text "cnode" <+> maybeParensList [prettyBits bits]
     Untyped mbits paddr -> text "ut" <+> maybeParensList [prettyMBits mbits, prettyPaddr paddr]
 
     ASIDPool _ asidHigh -> text "asid_pool" <+> maybeParensList [prettyAsidHigh asidHigh]

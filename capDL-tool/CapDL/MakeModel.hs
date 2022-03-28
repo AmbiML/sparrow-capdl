@@ -243,6 +243,14 @@ getExtraInfo n params =
         (Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing) -> Nothing
         params -> error $ "Incorrect extra tcb parameters: " ++ n ++ show params
 
+getCNodeHasUntyped :: [ObjParam] -> Maybe Bool
+getCNodeHasUntyped [] = Nothing
+getCNodeHasUntyped (CNodeExtraParam (HasUntyped untyped) : _) = Just untyped
+getCNodeHasUntyped (_ : xs) = getCNodeHasUntyped xs
+
+getCNodeExtraInfo :: [ObjParam] -> CNodeExtraInfo
+getCNodeExtraInfo params = CNodeExtraInfo (getCNodeHasUntyped params)
+
 getTCBDom :: [ObjParam] -> Integer
 getTCBDom [] = 0
 getTCBDom (Dom dom : _) = dom
@@ -416,7 +424,8 @@ validObjPars :: KO -> Bool
 validObjPars (Obj TCB_T ps []) =
   subsetConstrs ps (replicate (numConstrs (Addr undefined)) (TCBExtraParam undefined)
                     ++ [InitArguments undefined, Dom undefined, FaultEP undefined])
-validObjPars (Obj CNode_T ps []) = subsetConstrs ps [BitSize undefined]
+validObjPars (Obj CNode_T ps []) =
+  subsetConstrs ps [BitSize undefined, CNodeExtraParam $ HasUntyped undefined]
 validObjPars (Obj Untyped_T ps _) = subsetConstrs ps [BitSize undefined, Paddr undefined]
 validObjPars (Obj Frame_T ps []) =
   subsetConstrs ps [VMSize undefined, Paddr undefined, FrameExtraParam undefined] &&
@@ -451,7 +460,7 @@ objectOf n obj =
         Obj Notification_T [] [] -> Notification
         Obj TCB_T ps [] ->
             TCB Map.empty (getFaultEP ps) (getExtraInfo n ps) (getTCBDom ps) (getInitArguments ps)
-        Obj CNode_T ps [] -> CNode Map.empty (getBitSize n ps)
+        Obj CNode_T ps [] -> CNode Map.empty (getBitSize n ps) (getCNodeExtraInfo ps)
         Obj Untyped_T ps _ -> Untyped (getMaybeBitSize ps) (getMaybePaddr ps)
         Obj ASIDPool_T ps [] -> ASIDPool Map.empty (getMaybeAsidHigh ps)
         Obj PT_T _ [] -> PT Map.empty
@@ -470,7 +479,7 @@ objectOf n obj =
         Obj IOPorts_T ps [] -> IOPorts (getPorts n ps)
         Obj IODevice_T ps [] -> IODevice Map.empty (getDomainID n ps) (getPCIDevice n ps)
         Obj ARMIODevice_T ps [] -> ARMIODevice Map.empty (getARMIODevice n ps)
-        Obj IrqSlot_T [] [] -> CNode Map.empty 0
+        Obj IrqSlot_T [] [] -> CNode Map.empty 0 (CNodeExtraInfo Nothing)
         Obj IOAPICIrqSlot_T ps [] -> IOAPICIrq Map.empty (getIOAPICIrqIoapic ps) (getIOAPICIrqPin ps) (getIOAPICIrqLevel ps) (getIOAPICIrqPolarity ps)
         Obj MSIIrqSlot_T ps [] -> MSIIrq Map.empty (getMSIIrqHandle ps) (getMSIIrqPCIBus ps) (getMSIIrqPCIDev ps) (getMSIIrqPCIFun ps)
         Obj ARMIrqSlot_T ps [] -> ARMIrq Map.empty (getARMIrqTrigger n ps) (getARMIrqTarget n ps)
@@ -632,7 +641,7 @@ objCapOf containerName obj objRef params =
                 [MasterReply] -> MasterReplyCap objRef
                 _ -> error "invalid cap"
         Untyped {} -> UntypedCap objRef
-        CNode _ 0 -> IRQHandlerCap objRef --FIXME: This should check if the obj is in the irqNode
+        CNode _ 0 _ -> IRQHandlerCap objRef --FIXME: This should check if the obj is in the irqNode
         CNode {} -> CNodeCap objRef (getGuard params) (getGuardSize params)
         Frame {} -> FrameCap objRef (getRights params) (getMaybeAsid params) (getCached params)
                                     (getMaybeMapping params)

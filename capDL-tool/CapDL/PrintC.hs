@@ -288,9 +288,10 @@ showObjectFields objs obj_id (TCB slots faultEndpoint info domain argv) _ _ _ =
         pc = case info of {Just i -> case ip i of {Just v -> v; _ -> 0}; _ -> 0}
         stack = case info of {Just i -> case sp i of {Just v -> v; _ -> 0}; _ -> 0}
         fault_ep = case faultEndpoint of {Just w -> w; _ -> 0}
-showObjectFields objs obj_id (CNode slots sizeBits) irqNode cdt ms =
+showObjectFields objs obj_id (CNode slots sizeBits info) irqNode cdt ms =
     ".type = " ++ t ++ "," +++
     ".size_bits = " ++ show sizeBits ++ "," +++
+    cnode_extra ++
     memberSlots objs obj_id slots irqNode cdt ms
     where
         -- IRQs are represented in CapDL as 0-sized CNodes. This is fine for
@@ -299,6 +300,14 @@ showObjectFields objs obj_id (CNode slots sizeBits) irqNode cdt ms =
         -- a hack to assume that any 0-sized CNode is an interrupt, but this is
         -- an illegal size for a valid CNode so everything should work out.
         t = if sizeBits == 0 then "CDL_Interrupt" else "CDL_CNode"
+
+        -- CNode-only attributes:
+        --   hasUntyped instructs the rootserver to hand-off UntypedMemory objects
+        untyped = case hasUntyped info of {Just True -> 1; _ -> 0}
+        cnode_extra = if sizeBits == 0 then "" else
+            ".cnode_extra = {" +++
+                ".has_untyped_memory = " ++ show untyped ++ "," +++
+            "},\n"
 showObjectFields objs obj_id (IOAPICIrq slots ioapic pin level polarity) irqNode cdt ms =
     ".type = CDL_IOAPICInterrupt, " +++
     memberSlots objs obj_id slots irqNode cdt ms +++

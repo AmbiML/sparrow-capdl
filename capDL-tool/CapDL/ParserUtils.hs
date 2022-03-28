@@ -161,6 +161,17 @@ obj_paddr = do
     n <- number
     return $ Paddr n
 
+cnode_has_untyped :: MapParser CNodeExtraParam
+cnode_has_untyped = do
+    reserved "untyped"
+    colon
+    keyw "True" (HasUntyped True) <|> keyw "False" (HasUntyped False)
+
+cnode_extra_param :: MapParser ObjParam
+cnode_extra_param = do
+    param <-   (cnode_has_untyped)
+    return $ CNodeExtraParam param
+
 io_pt_level :: MapParser ObjParam
 io_pt_level = do
     reserved "level"
@@ -458,6 +469,7 @@ object_param =
     <|> ports_param
     <|> asid_high_param
     <|> cb_extra_param
+    <|> cnode_extra_param
 
 object_params :: MapParser [ObjParam]
 object_params =
