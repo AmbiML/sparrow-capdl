@@ -10,28 +10,23 @@
 use core::mem::size_of;
 use core::ptr;
 use cstr_core::CStr;
-use kata_os_common::capdl;
-use kata_os_common::allocator;
-use kata_os_common::logger::KataLogger;
-use kata_os_common::model;
-use kata_os_common::sel4_sys;
+use kata_allocator;
+use kata_logger::KataLogger;
+use kata_os_common::capdl::CDL_Model;
+use kata_os_common::capdl::CDL_Core;
+use kata_os_common::capdl::CDL_ObjID;
+use kata_os_common::capdl::CDL_IRQ;
+use kata_os_common::kata_os_model::KataOsModel;
+use kata_os_common::kata_os_model::ModelState;
+use kata_os_common::sel4_sys::seL4_BootInfo;
+use kata_os_common::sel4_sys::seL4_CapInitThreadTCB;
+use kata_os_common::sel4_sys::seL4_CPtr;
+use kata_os_common::sel4_sys::seL4_DebugPutChar;
+use kata_os_common::sel4_sys::seL4_GetIPCBuffer;
+use kata_os_common::sel4_sys::seL4_TCB_Suspend;
+extern crate kata_panic;
 use log::{info, trace};
 use static_assertions::*;
-
-use capdl::CDL_Model;
-use capdl::CDL_Core;
-use capdl::CDL_ObjID;
-use capdl::CDL_IRQ;
-
-use model::KataOsModel;
-use model::ModelState;
-
-use sel4_sys::seL4_BootInfo;
-use sel4_sys::seL4_CapInitThreadTCB;
-use sel4_sys::seL4_CPtr;
-use sel4_sys::seL4_DebugPutChar;
-use sel4_sys::seL4_GetIPCBuffer;
-use sel4_sys::seL4_TCB_Suspend;
 
 assert_cfg!(feature = "CONFIG_PRINTING",
             "seL4 console output support is required");
@@ -168,7 +163,7 @@ pub fn main() {
     // has many VSpace roots.
     static mut HEAP_MEMORY: [u8; 4096] = [0; 4096];
     unsafe {
-        allocator::ALLOCATOR.init(HEAP_MEMORY.as_mut_ptr() as usize, HEAP_MEMORY.len());
+        kata_allocator::ALLOCATOR.init(HEAP_MEMORY.as_mut_ptr() as usize, HEAP_MEMORY.len());
         trace!(
             "setup heap: start_addr {:p} size {}",
             HEAP_MEMORY.as_ptr(),

@@ -1,9 +1,10 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "kata-os-rootserver"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 build = "build.rs"
-resolver = "2"
 
 [build-dependencies]
 sel4-config = { path = "../../processmanager/apps/system/components/kata-os-common/src/sel4-config" }
@@ -22,6 +23,9 @@ crate-type = ["staticlib"]
 
 [dependencies]
 cstr_core = { version = "0.2.3", default-features = false }
+kata-allocator = { path = "../../processmanager/apps/system/components/DebugConsole/kata-allocator" }
+kata-logger = { path = "../../processmanager/apps/system/components//DebugConsole/kata-logger" }
+kata-panic = { path = "../../processmanager/apps/system/components//DebugConsole/kata-panic" }
 kata-os-common = { path = "../../processmanager/apps/system/components//kata-os-common" }
 log = "0.4"
 static_assertions = "1.1"
