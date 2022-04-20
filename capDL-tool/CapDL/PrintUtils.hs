@@ -305,6 +305,7 @@ maybeCapParams cap = case cap of
         capParams (maybeBadge badge ++ maybeRights False rights)
     NotificationCap _ badge rights ->
         capParams (maybeBadge badge ++ maybeRights False rights)
+    RTReplyCap _ rights -> capParams (maybeRights False rights)
     ReplyCap _ -> capParams [text "reply"]
     MasterReplyCap _ -> capParams [text "master_reply"]
     CNodeCap _ guard gsize ->
@@ -340,6 +341,7 @@ sameParams cap1 cap2 =
     ((FrameCap _ r1 a1 c1 m1), (FrameCap _ r2 a2 c2 m2)) -> r1 == r2 && a1 == a2 && c1 == c2 && m1 == m2
     ((PTCap _ a1), (PTCap _ a2)) -> a1 == a2
     ((PDCap _ a1), (PDCap _ a2)) -> a1 == a2
+    ((RTReplyCap _ r1), (RTReplyCap _ r2)) -> r1 == r2
     _ -> True
 
 sameCapName :: Cap -> Cap -> Bool

@@ -619,6 +619,7 @@ validCapPars (CNode {}) ps = subsetConstrs ps [Guard undefined, GuardSize undefi
 validCapPars (Frame {}) ps =
     subsetConstrs (removeConstr (Rights undefined) ps) [Asid undefined, Cached undefined,
                                                         FrameMapping undefined undefined]
+validCapPars (RTReply {}) ps = subsetConstrs ps [Rights undefined]
 validCapPars (PD {}) ps = subsetConstrs ps [Asid undefined]
 validCapPars (PT {}) ps = subsetConstrs ps [Asid undefined]
 validCapPars (PML4 {}) ps = subsetConstrs ps [Asid undefined]
@@ -634,6 +635,7 @@ objCapOf containerName obj objRef params =
         Endpoint -> EndpointCap objRef (getBadge params) (getRights params)
         Notification ->
             NotificationCap objRef (getBadge params) (getRights params)
+        RTReply -> RTReplyCap objRef (getRights params)
         TCB {} ->
             case getReplys params of
                 [] -> TCBCap objRef
@@ -658,7 +660,6 @@ objCapOf containerName obj objRef params =
         ARMIODevice  {} -> ARMIOSpaceCap objRef
         VCPU {} -> VCPUCap objRef
         SC {} -> SCCap objRef
-        RTReply {} -> RTReplyCap objRef
         IOAPICIrq {} -> IRQIOAPICHandlerCap objRef
         MSIIrq {} -> IRQMSIHandlerCap objRef
         ARMIrq {} -> ARMIRQHandlerCap objRef

@@ -198,8 +198,9 @@ showCap objs (ARMIOSpaceCap id) _ is_orig ms =
 showCap objs (VCPUCap id) _ _ _ = "{.type = CDL_VCPUCap, .obj_id = " ++ showObjID objs id ++ "}"
 showCap _ (SchedControlCap affinity) _ _ _ =
     "{.type = CDL_SchedControlCap, .obj_id = " ++ (hex affinity) ++ " }"
-showCap objs (RTReplyCap id) _ _ _ =
-    "{.type = CDL_RTReplyCap, .obj_id = " ++ showObjID objs id ++ "}"
+showCap objs (RTReplyCap id rights) _ _ _ =
+    "{.type = CDL_RTReplyCap, .obj_id = " ++ showObjID objs id ++
+    ", .rights = " ++ showRights rights ++ "}"
 showCap objs (SCCap id) _ is_orig _ =
     "{.type = CDL_SCCap, .obj_id = " ++ showObjID objs id ++
     ", .is_orig = " ++ is_orig ++ "}"

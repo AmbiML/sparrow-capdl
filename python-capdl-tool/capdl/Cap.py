@@ -7,7 +7,7 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
-from capdl.Object import Object, Frame, CNode, Endpoint, Notification, SchedControl
+from capdl.Object import Object, Frame, CNode, Endpoint, Notification, SchedControl, RTReply
 
 
 class Cap(object):
@@ -85,7 +85,7 @@ class Cap(object):
             return "sched_control (core: %d)" % self.referent.core
 
         if isinstance(self.referent,
-                      (Frame, Endpoint, Notification)):
+                      (Frame, Endpoint, Notification, RTReply)):
             is_frame = isinstance(self.referent, Frame)
             rights = [sym for sym, flag in
                       [('R', self.read),

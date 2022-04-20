@@ -80,7 +80,9 @@ data Cap
         | DomainCap
         | SCCap { capObj :: ObjID }
         | SchedControlCap { core :: Word }
-        | RTReplyCap { capObj :: ObjID }
+        | RTReplyCap {
+            capObj :: ObjID,
+            capRights :: CapRights }
         | VCPUCap {
             capObj :: ObjID }
 
@@ -417,6 +419,7 @@ objID = capObj
 -- Determine if the given cap has rights.
 --
 hasRights :: Cap -> Bool
+hasRights (RTReplyCap {})         = True
 hasRights (NotificationCap {})   = True
 hasRights (EndpointCap {})        = True
 hasRights (FrameCap {})           = True
