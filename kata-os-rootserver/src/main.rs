@@ -15,6 +15,7 @@ use kata_os_common::allocator;
 use kata_os_common::logger::KataLogger;
 use kata_os_common::model;
 use kata_os_common::sel4_sys;
+use log::LevelFilter;
 use log::{info, trace};
 use static_assertions::*;
 
@@ -35,6 +36,13 @@ use sel4_sys::seL4_TCB_Suspend;
 
 assert_cfg!(feature = "CONFIG_PRINTING",
             "seL4 console output support is required");
+
+#[cfg(feature = "LOG_DEBUG")]
+const INIT_LOG_LEVEL: LevelFilter = LevelFilter::Debug;
+#[cfg(feature = "LOG_TRACE")]
+const INIT_LOG_LEVEL: LevelFilter = LevelFilter::Trace;
+#[cfg(not(any(feature = "LOG_DEBUG", feature = "LOG_TRACE")))]
+const INIT_LOG_LEVEL: LevelFilter = LevelFilter::Info;
 
 // Linkage to pre-calculated data used to initialize the system.
 extern "C" {
@@ -161,7 +169,7 @@ pub fn main() {
     // Setup logger.
     static KATA_LOGGER: KataLogger = KataLogger;
     log::set_logger(&KATA_LOGGER).unwrap();
-    log::set_max_level(log::LevelFilter::Info);
+    log::set_max_level(INIT_LOG_LEVEL);
 
     // Setup memory allocation from a fixed heap. For the configurations
     // tested no heap was used. KataOsModel may use the heap if the model
