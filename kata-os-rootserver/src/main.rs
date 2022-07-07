@@ -2,9 +2,27 @@
 //
 // Constructs a system of multiple components according to a capDL
 // specification. Derived from the C version of capdl-loader-app.
+//
+// In addition to constructing the system components, the rootserver is
+// responsible for handing off objects that need to outlive the rootserver.
+// The boot sequence is:
+//   1. The kernel marks UntypedMemory objects it uses to construct
+//      rootserver objects as "tainted".
+//   2. The kernel passes all UntypedMemory objects to the rootserver.
+//   3. The rootserver runs and skips over UntypedMemory marked tainted
+//      to avoid mixing rootserver resources w/ non-rootserver resources.
+//   4. The rootserver hands off UntypedMemory objects to the MemoryManager.
+//   5. The rootserver suspends itself.
+//   6. The MemoryManager starts up and seeds it's memory pool from the
+//      UntypedMemory objects passed to it. As part of this process, for
+//      each UntypedMemory object marked "tainted" it issues a Revoke system
+//      call that causes the kernel to reclaim all memory associated with
+//      the object (including the rootserver's TCB).
+// At the end of this sequnece all vestiges of the rootserver are gone and
+// the MemoryManager owns all available memory. The CAmkES components
+// instantiated by the rootserver remain because the MemoryManager has
+// references to the capDL-specified objects.
 #![no_std]
-// NB: the compiler wrongly complains no_main is an unused attribute
-#![allow(unused_attributes)]
 #![no_main]
 
 use core::mem::size_of;
@@ -205,10 +223,10 @@ pub fn main() {
     // NB: on platforms that use libsel4platsupport additional storage
     //     will be (silently) used;
     info!(
-        "Bootinfo: {} empty slots {} nodes {} untyped {} cnode slots",
-        bootinfo_ref.empty.end - bootinfo_ref.empty.start,
+        "Bootinfo: {:?} empty slots {} nodes {:?} untyped {} cnode slots",
+        (bootinfo_ref.empty.start, bootinfo_ref.empty.end),
         bootinfo_ref.numNodes,
-        bootinfo_ref.untyped.end - bootinfo_ref.untyped.start,
+        (bootinfo_ref.untyped.start, bootinfo_ref.untyped.end),
         1 << bootinfo_ref.initThreadCNodeSizeBits
     );
     info!(
@@ -275,10 +293,13 @@ pub fn main() {
         executable_ref,
     );
     model.init_system().expect("init_system");
-    model.handoff_capabilities().expect("handoff_capabilities");
-    model.start_threads().expect("start_threads");
 
-    // TODO(sleffler): reclaim rootserver resources
+    // Hand-off the rootserver's resources (typically to the MemoryManager).
+    // NB: this includes the tainted UntypedMemory objects that when revoked
+    //   will cause the rootserver's memory to be returned to the free pool.
+    model.handoff_capabilities().expect("handoff_capabilities");
+
+    model.start_threads().expect("start_threads");
 
     let _ = unsafe { seL4_TCB_Suspend(seL4_CapInitThreadTCB) };
 }
