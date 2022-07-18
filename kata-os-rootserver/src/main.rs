@@ -9,6 +9,7 @@
 
 use core::mem::size_of;
 use core::ptr;
+use cstr_core::CStr;
 use kata_os_common::capdl;
 use kata_os_common::allocator;
 use kata_os_common::logger::KataLogger;
@@ -16,6 +17,7 @@ use kata_os_common::model;
 use kata_os_common::sel4_sys;
 use log::LevelFilter;
 use log::{info, trace};
+use static_assertions::*;
 
 use capdl::CDL_Model;
 use capdl::CDL_Core;
@@ -28,8 +30,12 @@ use model::ModelState;
 use sel4_sys::seL4_BootInfo;
 use sel4_sys::seL4_CapInitThreadTCB;
 use sel4_sys::seL4_CPtr;
+use sel4_sys::seL4_DebugPutChar;
 use sel4_sys::seL4_GetIPCBuffer;
 use sel4_sys::seL4_TCB_Suspend;
+
+assert_cfg!(feature = "CONFIG_PRINTING",
+            "seL4 console output support is required");
 
 #[cfg(feature = "LOG_DEBUG")]
 const INIT_LOG_LEVEL: LevelFilter = LevelFilter::Debug;
@@ -149,14 +155,12 @@ impl ModelState for KataOsModelState {
 // Note this differs from capdl-loader-app which uses the zf_log &
 // sel4platformsupport packages.
 #[no_mangle]
-#[allow(unused_variables)]
 pub fn logger_log(_level: u8, msg: *const cstr_core::c_char) {
-    #[cfg(feature = "CONFIG_PRINTING")]
     unsafe {
-        for c in cstr_core::CStr::from_ptr(msg).to_bytes() {
-            let _ = sel4_sys::seL4_DebugPutChar(*c);
+        for c in CStr::from_ptr(msg).to_bytes() {
+            let _ = seL4_DebugPutChar(*c);
         }
-        let _ = sel4_sys::seL4_DebugPutChar(b'\n');
+        let _ = seL4_DebugPutChar(b'\n');
     }
 }
 

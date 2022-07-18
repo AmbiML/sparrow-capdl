@@ -62,7 +62,7 @@ add_config_library(capdl_loader_app "${configure_string}")
 # Build an archive of the RUST bits
 # TODO(mattharvey): rust.cmake maybe belongs here with processmanager
 #    doing the reach-over
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../processmanager/apps/system/rust.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../kata/apps/system/rust.cmake)
 
 RustAddLibrary(
     kata_rootserver

@@ -6,7 +6,7 @@ build = "build.rs"
 
 [build-dependencies]
 # build.rs depends on SEL4_OUT_DIR = "${ROOTDIR}/out/kata/kernel"
-sel4-config = { path = "../../processmanager/apps/system/components/kata-os-common/src/sel4-config" }
+sel4-config = { path = "../../kata/apps/system/components/kata-os-common/src/sel4-config" }
 
 [features]
 default = []
@@ -23,6 +23,6 @@ crate-type = ["staticlib"]
 
 [dependencies]
 cstr_core = { version = "0.2.3", default-features = false }
-kata-os-common = { path = "../../processmanager/apps/system/components//kata-os-common", default-features = false }
+kata-os-common = { path = "../../kata/apps/system/components/kata-os-common", default-features = false }
 log = "0.4"
 static_assertions = "1.1"
