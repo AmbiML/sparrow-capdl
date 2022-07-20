@@ -9,16 +9,16 @@
 
 use core::mem::size_of;
 use core::ptr;
-use kata_os_common::capdl;
 use kata_os_common::allocator;
+use kata_os_common::capdl;
 use kata_os_common::logger::KataLogger;
 use kata_os_common::model;
 use kata_os_common::sel4_sys;
 use log::LevelFilter;
 use log::{info, trace};
 
-use capdl::CDL_Model;
 use capdl::CDL_Core;
+use capdl::CDL_Model;
 use capdl::CDL_ObjID;
 use capdl::CDL_IRQ;
 
@@ -26,8 +26,8 @@ use model::KataOsModel;
 use model::ModelState;
 
 use sel4_sys::seL4_BootInfo;
-use sel4_sys::seL4_CapInitThreadTCB;
 use sel4_sys::seL4_CPtr;
+use sel4_sys::seL4_CapInitThreadTCB;
 use sel4_sys::seL4_GetIPCBuffer;
 use sel4_sys::seL4_TCB_Suspend;
 
@@ -74,11 +74,11 @@ const CONFIG_MAX_NUM_NODES: usize = 1;
 struct KataOsModelState {
     // Mapping from object ID (from specification) to associated object CPtr
     // created in the rootserver's CSpace.
-    capdl_to_sel4_orig : [seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
+    capdl_to_sel4_orig: [seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
     // Mapping from object ID to any dup of capdl_to_sel4_orig. This is
     // used to track objects as they are moved from the rootserver's CSpace
     // to the target CSpace.
-    capdl_to_sel4_dup : [seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
+    capdl_to_sel4_dup: [seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
     // Mapping from IRQ number to associated handler capability.
     capdl_to_sel4_irq: [seL4_CPtr; CONFIG_MAX_NUM_IRQS],
     // Mapping from SchedCtrl number to associated scheduler context.
@@ -92,8 +92,8 @@ struct KataOsModelState {
 impl KataOsModelState {
     pub const fn new() -> Self {
         KataOsModelState {
-            capdl_to_sel4_orig : [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
-            capdl_to_sel4_dup : [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
+            capdl_to_sel4_orig: [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
+            capdl_to_sel4_dup: [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
             capdl_to_sel4_irq: [0 as seL4_CPtr; CONFIG_MAX_NUM_IRQS],
             capdl_to_sched_ctrl: [0 as seL4_CPtr; CONFIG_MAX_NUM_NODES],
 
@@ -102,10 +102,18 @@ impl KataOsModelState {
     }
 }
 impl ModelState for KataOsModelState {
-    fn get_max_objects(&self) -> usize { self.capdl_to_sel4_orig.len() }
-    fn get_max_irqs(&self) -> usize { self.capdl_to_sel4_irq.len() }
-    fn get_max_sched_ctrl(&self) -> usize { self.capdl_to_sched_ctrl.len() }
-    fn get_max_untyped_caps(&self) -> usize { self.untyped_cptrs.len() }
+    fn get_max_objects(&self) -> usize {
+        self.capdl_to_sel4_orig.len()
+    }
+    fn get_max_irqs(&self) -> usize {
+        self.capdl_to_sel4_irq.len()
+    }
+    fn get_max_sched_ctrl(&self) -> usize {
+        self.capdl_to_sched_ctrl.len()
+    }
+    fn get_max_untyped_caps(&self) -> usize {
+        self.untyped_cptrs.len()
+    }
 
     fn get_orig_cap(&self, obj_id: CDL_ObjID) -> seL4_CPtr {
         self.capdl_to_sel4_orig[obj_id]
@@ -196,21 +204,26 @@ pub fn main() {
     //
     // NB: on platforms that use libsel4platsupport additional storage
     //     will be (silently) used;
-    info!("Bootinfo: {} empty slots {} nodes {} untyped {} cnode slots",
-          bootinfo_ref.empty.end - bootinfo_ref.empty.start,
-          bootinfo_ref.numNodes,
-          bootinfo_ref.untyped.end - bootinfo_ref.untyped.start,
-          1 << bootinfo_ref.initThreadCNodeSizeBits);
-    info!("Model: {} objects {} irqs {} untypeds {} asids",
-          capdl_spec_ref.num,
-          capdl_spec_ref.num_irqs,
-          capdl_spec_ref.num_untyped,
-          capdl_spec_ref.num_asid_slots);
-    assert!(bootinfo_ref.empty.end - bootinfo_ref.empty.start >=
-            CONFIG_CAPDL_LOADER_MAX_OBJECTS,
-            "Not enough object storage: bootinfo has {} but CONFIG_CAPDL_LOADER_MAX_OBJECTS={}",
-            bootinfo_ref.empty.end - bootinfo_ref.empty.start,
-            CONFIG_CAPDL_LOADER_MAX_OBJECTS);
+    info!(
+        "Bootinfo: {} empty slots {} nodes {} untyped {} cnode slots",
+        bootinfo_ref.empty.end - bootinfo_ref.empty.start,
+        bootinfo_ref.numNodes,
+        bootinfo_ref.untyped.end - bootinfo_ref.untyped.start,
+        1 << bootinfo_ref.initThreadCNodeSizeBits
+    );
+    info!(
+        "Model: {} objects {} irqs {} untypeds {} asids",
+        capdl_spec_ref.num,
+        capdl_spec_ref.num_irqs,
+        capdl_spec_ref.num_untyped,
+        capdl_spec_ref.num_asid_slots
+    );
+    assert!(
+        bootinfo_ref.empty.end - bootinfo_ref.empty.start >= CONFIG_CAPDL_LOADER_MAX_OBJECTS,
+        "Not enough object storage: bootinfo has {} but CONFIG_CAPDL_LOADER_MAX_OBJECTS={}",
+        bootinfo_ref.empty.end - bootinfo_ref.empty.start,
+        CONFIG_CAPDL_LOADER_MAX_OBJECTS
+    );
 
     fn calc_bytes(begin: *const u8, end: *const u8) -> usize {
         (end as usize) - (begin as usize)
@@ -218,13 +231,16 @@ pub fn main() {
     let capdl_archive_ref = unsafe {
         core::slice::from_raw_parts(
             ptr::addr_of!(_capdl_archive[0]),
-            calc_bytes(ptr::addr_of!(_capdl_archive[0]), ptr::addr_of!(_capdl_archive_end[0]))
+            calc_bytes(
+                ptr::addr_of!(_capdl_archive[0]),
+                ptr::addr_of!(_capdl_archive_end[0]),
+            ),
         )
     };
     let executable_ref = unsafe {
         core::slice::from_raw_parts(
             ptr::addr_of!(__executable_start[0]),
-            calc_bytes(ptr::addr_of!(__executable_start[0]), ptr::addr_of!(_end[0]))
+            calc_bytes(ptr::addr_of!(__executable_start[0]), ptr::addr_of!(_end[0])),
         )
     };
 
@@ -233,10 +249,14 @@ pub fn main() {
     }
     let capdl_space = capdl_spec_ref.calc_space();
     info!("capDL spec: {:.2} Mbytes", to_megabytes(capdl_space));
-    info!("CAmkES components: {:.2} Mbytes",
-          to_megabytes(capdl_archive_ref.len()));
-    info!("Rootserver executable: {:.2} Mbytes",
-          to_megabytes(executable_ref.len() - (capdl_space + capdl_archive_ref.len())));
+    info!(
+        "CAmkES components: {:.2} Mbytes",
+        to_megabytes(capdl_archive_ref.len())
+    );
+    info!(
+        "Rootserver executable: {:.2} Mbytes",
+        to_megabytes(executable_ref.len() - (capdl_space + capdl_archive_ref.len()))
+    );
 
     // The model goes on the stack which usually has a fixed & limited size.
     // We don't know what's been configured but the default is 16KB; require
