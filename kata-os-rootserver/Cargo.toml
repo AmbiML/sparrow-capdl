@@ -37,6 +37,6 @@ crate-type = ["staticlib"]
 
 [dependencies]
 cstr_core = { version = "0.2.3", default-features = false }
-kata-os-common = { path = "../../kata/apps/system/components/kata-os-common", default-features = false }
+kata-os-common = { path = "../../kata/apps/system/components/kata-os-common", default-features = false, features = ["capdl_support"] }
 log = { version = "0.4", features = ["release_max_level_info"] }
 static_assertions = "1.1"
