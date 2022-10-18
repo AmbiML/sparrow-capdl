@@ -20,7 +20,7 @@ fn main() {
     // location relative to the ROOTDIR env variable.
     println!("SEL4_OUT_DIR {:?}", env::var("SEL4_OUT_DIR"));
     let sel4_out_dir = env::var("SEL4_OUT_DIR")
-        .unwrap_or_else(|_| format!("{}/out/kata/kernel", env::var("ROOTDIR").unwrap()));
+        .unwrap_or_else(|_| format!("{}/out/cantrip/kernel", env::var("ROOTDIR").unwrap()));
     println!("sel4_out_dir {}", sel4_out_dir);
 
     // Dredge seL4 kernel config for settings we need as features to generate

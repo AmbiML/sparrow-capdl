@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// kata-os-loader: capDL bootstrap for KataOS.
+// cantrip-os-loader: capDL bootstrap for CantripOS.
 //
 
 // Constructs a system of multiple components according to a capDL
@@ -42,11 +42,11 @@
 
 use core::mem::size_of;
 use core::ptr;
-use kata_os_common::allocator;
-use kata_os_common::capdl;
-use kata_os_common::logger::KataLogger;
-use kata_os_common::model;
-use kata_os_common::sel4_sys;
+use cantrip_os_common::allocator;
+use cantrip_os_common::capdl;
+use cantrip_os_common::logger::CantripLogger;
+use cantrip_os_common::model;
+use cantrip_os_common::sel4_sys;
 use log::LevelFilter;
 use log::{info, trace};
 
@@ -55,7 +55,7 @@ use capdl::CDL_Model;
 use capdl::CDL_ObjID;
 use capdl::CDL_IRQ;
 
-use model::KataOsModel;
+use model::CantripOsModel;
 use model::ModelState;
 
 use sel4_sys::seL4_BootInfo;
@@ -104,7 +104,7 @@ const CONFIG_MAX_NUM_NODES: usize = 1;
 // according to the specification and bootinfo.
 //
 // XXX say something about memmory re-use after the loader completes setup.
-struct KataOsModelState {
+struct CantripOsModelState {
     // Mapping from object ID (from specification) to associated object CPtr
     // created in the rootserver's CSpace.
     capdl_to_sel4_orig: [seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
@@ -122,9 +122,9 @@ struct KataOsModelState {
     // result of sort_untypeds.
     untyped_cptrs: [seL4_CPtr; CONFIG_MAX_NUM_BOOTINFO_UNTYPED_CAPS],
 }
-impl KataOsModelState {
+impl CantripOsModelState {
     pub const fn new() -> Self {
-        KataOsModelState {
+        CantripOsModelState {
             capdl_to_sel4_orig: [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
             capdl_to_sel4_dup: [0 as seL4_CPtr; CONFIG_CAPDL_LOADER_MAX_OBJECTS],
             capdl_to_sel4_irq: [0 as seL4_CPtr; CONFIG_MAX_NUM_IRQS],
@@ -134,7 +134,7 @@ impl KataOsModelState {
         }
     }
 }
-impl ModelState for KataOsModelState {
+impl ModelState for CantripOsModelState {
     fn get_max_objects(&self) -> usize {
         self.capdl_to_sel4_orig.len()
     }
@@ -184,7 +184,7 @@ impl ModelState for KataOsModelState {
     }
 }
 
-// Message output is sent through the kata-os-logger which calls logger_log
+// Message output is sent through the cantrip-os-logger which calls logger_log
 // to deliver data to the console. We use seL4_DebugPutChar to write to the
 // console which only works if DEBUG_PRINTING is enabled in the kernel.
 // Note this differs from capdl-loader-app which uses the zf_log &
@@ -204,16 +204,16 @@ pub fn logger_log(_level: u8, msg: *const cstr_core::c_char) {
 #[no_mangle]
 pub fn main() {
     // Setup logger.
-    static KATA_LOGGER: KataLogger = KataLogger;
-    log::set_logger(&KATA_LOGGER).unwrap();
+    static CANTRIP_LOGGER: CantripLogger = CantripLogger;
+    log::set_logger(&CANTRIP_LOGGER).unwrap();
     log::set_max_level(INIT_LOG_LEVEL);
 
     // Setup memory allocation from a fixed heap. For the configurations
-    // tested no heap was used. KataOsModel may use the heap if the model
+    // tested no heap was used. CantripOsModel may use the heap if the model
     // has many VSpace roots.
     static mut HEAP_MEMORY: [u8; 4096] = [0; 4096];
     unsafe {
-        allocator::ALLOCATOR.init(HEAP_MEMORY.as_mut_ptr() as usize, HEAP_MEMORY.len());
+        allocator::ALLOCATOR.init(HEAP_MEMORY.as_mut_ptr(), HEAP_MEMORY.len());
         trace!(
             "setup heap: start_addr {:p} size {}",
             HEAP_MEMORY.as_ptr(),
@@ -294,13 +294,13 @@ pub fn main() {
     // The model goes on the stack which usually has a fixed & limited size.
     // We don't know what's been configured but the default is 16KB; require
     // no more than 1/2 the stack space is used to hold it. Note
-    // KataOsModelState holds all the large data structures; KataOsModel's
+    // CantripOsModelState holds all the large data structures; CantripOsModel's
     // size mostly depends on how space is given to vspace_roots.
-    assert!(size_of::<KataOsModel>() < (16 * 1024 / 2));
+    assert!(size_of::<CantripOsModel>() < (16 * 1024 / 2));
 
     // NB: STATE does not fit on the stack or heap.
-    static mut STATE: KataOsModelState = KataOsModelState::new();
-    let mut model = KataOsModel::new(
+    static mut STATE: CantripOsModelState = CantripOsModelState::new();
+    let mut model = CantripOsModel::new(
         unsafe { &mut STATE },
         capdl_spec_ref,
         bootinfo_ref,

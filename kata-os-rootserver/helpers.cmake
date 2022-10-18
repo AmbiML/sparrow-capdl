@@ -41,12 +41,12 @@ function(BuildCapDLApplication)
         "${CAPDL_BUILD_APP_OUTPUT}"
         PRIVATE $<TARGET_PROPERTY:capdl_app_properties,INCLUDE_DIRS>
     )
-    # TODO(sleffler) kata-os-rootserver does not honor the cmake
+    # TODO(sleffler) cantrip-os-rootserver does not honor the cmake
     #   configuration but capdl_spec.c expects capdl_loader_app/gen_config.h
     #   to exist so generate it
     target_link_libraries(
         "${CAPDL_BUILD_APP_OUTPUT}"
-        kata_rootserver
+        cantrip_rootserver
         sel4runtime              # NB: only uses the startup glue
         sel4utils                # NB: for building capdl_spec.c
         capdl_loader_app_Config  # NB: for building capdl_spec.c

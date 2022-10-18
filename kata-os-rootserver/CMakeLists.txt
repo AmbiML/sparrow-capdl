@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.7.2)
 
 set(configure_string "")
 
-# TODO(sleffler): not honored by kata-os-rootserver
+# TODO(sleffler): not honored by cantrip-os-rootserver
 config_choice(
     CapDLLoaderCallingConvention
     CAPDL_LOADER_CALLING_CONVENTION
@@ -62,12 +62,12 @@ add_config_library(capdl_loader_app "${configure_string}")
 # Build an archive of the RUST bits
 # TODO(mattharvey): rust.cmake maybe belongs here with processmanager
 #    doing the reach-over
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../kata/apps/system/rust.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cantrip/apps/system/rust.cmake)
 
 RustAddLibrary(
-    kata_rootserver
+    cantrip_rootserver
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    LIB_FILENAME libkata_os_rootserver.a
+    LIB_FILENAME libcantrip_os_rootserver.a
 )
 
 # The capdl-loader-app requires outside configuration in order to build. To achieve this
