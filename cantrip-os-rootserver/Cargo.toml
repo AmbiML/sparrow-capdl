@@ -28,6 +28,7 @@ CONFIG_PLAT_BCM2837 = []
 CONFIG_PLAT_SPARROW = []
 # Used by sel4-config to extract kernel config
 CONFIG_PRINTING = []
+CONFIG_DEBUG_BUILD = []
 # Log level is Info unless LOG_DEBUG or LOG_TRACE are specified
 LOG_DEBUG = []
 LOG_TRACE = []
@@ -38,7 +39,8 @@ path = "src/main.rs"
 crate-type = ["staticlib"]
 
 [dependencies]
-cstr_core = { version = "0.2.3", default-features = false }
 cantrip-os-common = { path = "../../cantrip/apps/system/components/cantrip-os-common", default-features = false, features = ["capdl_support"] }
+cfg-if = "1.0"
+cstr_core = { version = "0.2.3", default-features = false }
 log = { version = "0.4", features = ["release_max_level_info"] }
 static_assertions = "1.1"
