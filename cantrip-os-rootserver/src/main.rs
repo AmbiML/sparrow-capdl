@@ -40,14 +40,14 @@
 #![no_std]
 #![no_main]
 
-use cfg_if::cfg_if;
-use core::mem::size_of;
-use core::ptr;
 use cantrip_os_common::allocator;
 use cantrip_os_common::capdl;
 use cantrip_os_common::logger::CantripLogger;
 use cantrip_os_common::model;
 use cantrip_os_common::sel4_sys;
+use cfg_if::cfg_if;
+use core::mem::size_of;
+use core::ptr;
 use log::LevelFilter;
 use log::{info, trace};
 
@@ -341,10 +341,13 @@ pub fn main() {
     info!(
         "Rootserver untypeds: {} used of {}",
         unsafe {
-            STATE.untyped_cptrs.iter().filter_map(
-                |&v| if v != 0 { Some(v) } else { None }
-            ).max()
-        }.unwrap_or(0),
+            STATE
+                .untyped_cptrs
+                .iter()
+                .filter_map(|&v| if v != 0 { Some(v) } else { None })
+                .max()
+        }
+        .unwrap_or(0),
         unsafe { STATE.get_max_untyped_caps() },
     );
 

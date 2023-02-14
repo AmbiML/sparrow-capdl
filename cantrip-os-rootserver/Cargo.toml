@@ -38,8 +38,12 @@ name = "cantrip_os_rootserver"
 path = "src/main.rs"
 crate-type = ["staticlib"]
 
+[dependencies.cantrip-os-common]
+default-features = false
+features = ["capdl_support", "logger_support"]
+path = "../../cantrip/apps/system/components/cantrip-os-common"
+
 [dependencies]
-cantrip-os-common = { path = "../../cantrip/apps/system/components/cantrip-os-common", default-features = false, features = ["capdl_support"] }
 cfg-if = "1.0"
 cstr_core = { version = "0.2.3", default-features = false }
 log = { version = "0.4", features = ["release_max_level_info"] }
