@@ -45,6 +45,6 @@ path = "../../cantrip/apps/system/components/cantrip-os-common"
 
 [dependencies]
 cfg-if = "1.0"
-cstr_core = { version = "0.2.3", default-features = false }
+core2 = { version = "0.3", default-features = false }
 log = { version = "0.4", features = ["release_max_level_info"] }
 static_assertions = "1.1"
