@@ -42,13 +42,14 @@
 
 use cantrip_os_common::allocator;
 use cantrip_os_common::capdl;
+use cantrip_os_common::logger::CantripLogger;
 use cantrip_os_common::model;
 use cantrip_os_common::sel4_sys;
 use cfg_if::cfg_if;
 use core::mem::size_of;
-use core2::io::{Cursor, Write};
 use core::ptr;
-use log::*;
+use log::LevelFilter;
+use log::{info, trace};
 
 use capdl::CDL_Core;
 use capdl::CDL_Model;
@@ -206,38 +207,28 @@ impl ModelState for CantripOsModelState {
     }
 }
 
-// Console output is sent through the log crate. We use seL4_DebugPutChar
-// to write to the console which only works if DEBUG_PRINTING is enabled
-// in the kernel. Note this differs from capdl-loader-app which uses
-// sel4platformsupport to write to the console/uart.
-struct CapdlLogger;
-impl log::Log for CapdlLogger  {
-    fn enabled(&self, _metadata: &Metadata) -> bool { true }
-    fn flush(&self) {}
-    fn log(&self, record: &Record) {
-        let mut buf = [0u8; 1024];
-        let mut cur =  Cursor::new(&mut buf[..]);
-        write!(&mut cur, "{}:{}", record.target(), record.args()).unwrap_or_else(|_| {
-            cur.set_position((1024 - 3) as u64);
-            cur.write(b"...").expect("write");
-        });
-        let pos = cur.position() as usize;
-
-        #[cfg(feature = "CONFIG_PRINTING")]
-        unsafe {
-            for c in &buf[..pos] {
-                let _ = sel4_sys::seL4_DebugPutChar(*c);
-            }
-            let _ = sel4_sys::seL4_DebugPutChar(b'\n');
+// Message output is sent through the cantrip-os-logger which calls logger_log
+// to deliver data to the console. We use seL4_DebugPutChar to write to the
+// console which only works if DEBUG_PRINTING is enabled in the kernel.
+// Note this differs from capdl-loader-app which uses the zf_log &
+// sel4platformsupport packages.
+#[no_mangle]
+#[allow(unused_variables)]
+pub fn logger_log(_level: u8, msg: *const cstr_core::c_char) {
+    #[cfg(feature = "CONFIG_PRINTING")]
+    unsafe {
+        for c in cstr_core::CStr::from_ptr(msg).to_bytes() {
+            let _ = sel4_sys::seL4_DebugPutChar(*c);
         }
+        let _ = sel4_sys::seL4_DebugPutChar(b'\n');
     }
 }
 
 #[no_mangle]
 pub fn main() {
     // Setup logger.
-    static CAPDL_LOGGER: CapdlLogger = CapdlLogger;
-    log::set_logger(&CAPDL_LOGGER).unwrap();
+    static CANTRIP_LOGGER: CantripLogger = CantripLogger;
+    log::set_logger(&CANTRIP_LOGGER).unwrap();
     log::set_max_level(INIT_LOG_LEVEL);
 
     // Setup memory allocation from a fixed heap. For the configurations
