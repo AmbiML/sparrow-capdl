@@ -23,15 +23,18 @@ build = "build.rs"
 sel4-config = { path = "../../cantrip/apps/system/components/cantrip-os-common/src/sel4-config" }
 
 [features]
-default = []
+default = ["LOG_INFO"]
 CONFIG_PLAT_BCM2837 = []
 CONFIG_PLAT_SPARROW = []
 # Used by sel4-config to extract kernel config
 CONFIG_PRINTING = []
 CONFIG_DEBUG_BUILD = []
-# Log level is Info unless LOG_DEBUG or LOG_TRACE are specified
-LOG_DEBUG = []
-LOG_TRACE = []
+# The runtime log level is Info unless LOG_DEBUG or LOG_TRACE are specified.
+# We optimize the memory footprint by compiling out log messages that
+# would otherwise be discarded.
+LOG_INFO = ["log/release_max_level_info"]
+LOG_DEBUG = ["log/release_max_level_debug"]
+LOG_TRACE = ["log/release_max_level_trace"]
 
 [lib]
 name = "cantrip_os_rootserver"
@@ -46,5 +49,5 @@ path = "../../cantrip/apps/system/components/cantrip-os-common"
 [dependencies]
 cfg-if = "1.0"
 core2 = { version = "0.3", default-features = false }
-log = { version = "0.4", features = ["release_max_level_info"] }
+log = "0.4"
 static_assertions = "1.1"
