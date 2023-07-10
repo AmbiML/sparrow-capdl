@@ -38,7 +38,7 @@ LOG_TRACE = ["log/release_max_level_trace"]
 
 [lib]
 name = "cantrip_os_rootserver"
-path = "src/main.rs"
+path = "src/lib.rs"
 crate-type = ["staticlib"]
 
 [dependencies.cantrip-os-common]
