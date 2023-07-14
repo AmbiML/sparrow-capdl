@@ -96,7 +96,7 @@ cfg_if! {
 // c.f. KernelRootCNodeSizeBits & KernelMaxNumBootinfoUntypedCaps in
 // kernel/config.cmake (usually set in easy-settings.cmake).
 cfg_if! {
-    if #[cfg(feature = "CONFIG_PLAT_SPARROW")] {
+    if #[cfg(any(feature = "CONFIG_PLAT_SPARROW", feature = "CONFIG_PLAT_NEXUS"))] {
         #[cfg(not(feature = "CONFIG_DEBUG_BUILD"))]
         const CONFIG_CAPDL_LOADER_MAX_OBJECTS: usize = 1500;
 

@@ -26,6 +26,7 @@ sel4-config = { path = "../../cantrip/apps/system/components/cantrip-os-common/s
 default = ["LOG_INFO"]
 CONFIG_PLAT_BCM2837 = []
 CONFIG_PLAT_SPARROW = []
+CONFIG_PLAT_NEXUS = []
 # Used by sel4-config to extract kernel config
 CONFIG_PRINTING = []
 CONFIG_DEBUG_BUILD = []
